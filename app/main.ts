@@ -35,7 +35,6 @@ async function main() {
             }
           },
           "required": ["file_path"],
-          "optional": "farting",
         }
       }
     }]
