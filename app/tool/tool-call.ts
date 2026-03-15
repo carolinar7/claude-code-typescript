@@ -1,13 +1,16 @@
 import type OpenAI from "openai";
 import { ReadTool } from "./read";
+import { WriteTool } from "./write";
 import type { ChatCompletionTool } from "openai/resources";
 
-enum Tools {
-  READ = "Read"
+export enum Tools {
+  READ = "Read",
+  WRITE = "Write"
 }
 
 const ToolMapping = Object.freeze({
   [Tools.READ]: ReadTool,
+  [Tools.WRITE]: WriteTool,
 });
 
 export type ToolCallOutput = Record<string, any>
@@ -23,7 +26,7 @@ export class ToolCall {
       }
   
       const toolCallFunction = toolCall.function;
-      const toolName = toolCallFunction.name;
+      const toolName = toolCallFunction.name as Tools;
       const toolArguments = toolCall.function.arguments;
   
       let toolClass = null;
@@ -33,9 +36,12 @@ export class ToolCall {
         case Tools.READ:
           toolClass = ReadTool; 
           break;
+        case Tools.WRITE:
+          toolClass = WriteTool;
+          break;
         default:
-          console.error(`Unexpected tool call: ${toolName}`);
-          return;
+          const _exhaustiveCheck: Tools = toolName;
+          throw new Error(`Unhandled case: ${_exhaustiveCheck}`);
       }
   
       if (!toolClass) {

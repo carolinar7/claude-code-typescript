@@ -2,18 +2,19 @@ import * as fs from 'fs';
 import z from "zod";
 import type { Tool } from "./tool";
 import type { ChatCompletionTool } from 'openai/resources';
+import { Tools } from './tool-call';
 
 const ReadToolArguments = z.object({
   file_path: z.string(),
 })
 
 export class ReadTool implements Tool {
-  private filepath: string;
+  private filePath: string;
   private fileContents: string | null;
 
   constructor(args: string) {
     const parsedArguments = ReadToolArguments.parse(JSON.parse(args))
-    this.filepath = parsedArguments.file_path;
+    this.filePath = parsedArguments.file_path;
     this.fileContents = null;
   }
 
@@ -23,7 +24,7 @@ export class ReadTool implements Tool {
   }
 
   private readFilePath(): void {
-    this.fileContents = fs.readFileSync(this.filepath, 'utf-8');
+    this.fileContents = fs.readFileSync(this.filePath, 'utf-8');
   }
 
   private getFileContents(): string | null {
@@ -34,7 +35,7 @@ export class ReadTool implements Tool {
     return {
       "type": "function",
       "function": {
-        "name": "Read",
+        "name": Tools.READ,
         "description": "Read and return the contents of a file",
         "parameters": {
           "type": "object",

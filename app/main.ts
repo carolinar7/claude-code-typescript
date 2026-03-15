@@ -1,6 +1,6 @@
 import OpenAI from "openai";
-import { ToolCall, type ToolCallOutput } from "./tools/tool_call";
-import { MessageHistory } from "./message_history";
+import { ToolCall, type ToolCallOutput } from "./tool/tool-call";
+import { MessageHistory } from "./message-history";
 import type { ChatCompletionAssistantMessageParam } from "openai/resources";
 
 async function main() {
