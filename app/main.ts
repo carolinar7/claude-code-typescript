@@ -1,4 +1,5 @@
 import OpenAI from "openai";
+import { executeToolCalls, type ToolCallOutput } from "./tool_calls";
 
 async function main() {
   const [, , flag, prompt] = process.argv;
@@ -44,10 +45,28 @@ async function main() {
     throw new Error("no choices in response");
   }
 
-  // You can use print statements as follows for debugging, they'll be visible when running tests.
-  console.error("Logs from your program will appear here!");
+  const choice = response.choices[0];
+  const message = choice["message"];
 
-  console.log(response.choices[0].message.content);
+  if (!message) {
+    throw new Error("no message in response");
+  }
+
+  const toolCalls = message["tool_calls"];
+  
+  let toolOutputs: ToolCallOutput | null = null
+  if (!!toolCalls) {
+    toolOutputs = executeToolCalls(toolCalls);
+  }
+
+  if (toolOutputs) {
+    Object.keys(toolOutputs).forEach((key) => {
+       const output = toolOutputs[key]
+       console.log(output)
+    })
+  } else {
+    console.log(choice.message.content);
+  }
 }
 
 main();
