@@ -52,7 +52,7 @@ async function main() {
     
     let toolOutputs: ToolCallOutput | null = null
     if (!!toolCalls) {
-      toolOutputs = ToolCall.execute(toolCalls);
+      toolOutputs = await ToolCall.execute(toolCalls);
       assistantHistoryItem["tool_calls"] = toolCalls;
     }
 

@@ -1,56 +1,45 @@
 import type OpenAI from "openai";
 import { ReadTool } from "./read";
 import { WriteTool } from "./write";
+import { BashTool } from "./bash";
 import type { ChatCompletionTool } from "openai/resources";
 
 export enum Tools {
   READ = "Read",
-  WRITE = "Write"
+  WRITE = "Write",
+  BASH = "Bash",
 }
 
 const ToolMapping = Object.freeze({
   [Tools.READ]: ReadTool,
   [Tools.WRITE]: WriteTool,
+  [Tools.BASH]: BashTool,
 });
 
 export type ToolCallOutput = Record<string, any>
 
 export class ToolCall {
-  static execute(toolCalls: OpenAI.Chat.Completions.ChatCompletionMessageToolCall[]): ToolCallOutput {  
+  static async execute(toolCalls: OpenAI.Chat.Completions.ChatCompletionMessageToolCall[]): Promise<ToolCallOutput> {  
     const outputs: ToolCallOutput = {};
   
-    toolCalls.forEach((toolCall) => {
+    for (const toolCall of toolCalls) {
       // Not handling custom tools for now
       if (toolCall.type !== 'function') {
-        return;
+        continue;
       }
   
       const toolCallFunction = toolCall.function;
       const toolName = toolCallFunction.name as Tools;
       const toolArguments = toolCall.function.arguments;
-  
-      let toolClass = null;
-  
-      // Tool selection
-      switch(toolName) {
-        case Tools.READ:
-          toolClass = ReadTool; 
-          break;
-        case Tools.WRITE:
-          toolClass = WriteTool;
-          break;
-        default:
-          const _exhaustiveCheck: Tools = toolName;
-          throw new Error(`Unhandled case: ${_exhaustiveCheck}`);
-      }
+      const toolClass = ToolMapping[toolName];
   
       if (!toolClass) {
-        return;
+        throw new Error(`Unhandled case: ${toolName}`)
       }
-          
+
       const tool = new toolClass(toolArguments);
-      outputs[toolCall.id] = tool.execute();
-    });
+      outputs[toolCall.id] = await tool.execute();
+    }
   
     return outputs;
   }

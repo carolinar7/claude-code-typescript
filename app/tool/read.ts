@@ -13,8 +13,8 @@ export class ReadTool implements Tool {
   private fileContents: string | null;
 
   constructor(args: string) {
-    const parsedArguments = ReadToolArguments.parse(JSON.parse(args))
-    this.filePath = parsedArguments.file_path;
+    const { file_path } = ReadToolArguments.parse(JSON.parse(args));
+    this.filePath = file_path;
     this.fileContents = null;
   }
 

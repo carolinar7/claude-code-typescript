@@ -4,7 +4,7 @@ import type { Tool } from "./tool";
 import type { ChatCompletionTool } from 'openai/resources';
 import { Tools } from './tool-call';
 
-const ReadToolArguments = z.object({
+const WriteToolArguments = z.object({
   file_path: z.string(),
   content: z.string(),
 })
@@ -14,9 +14,9 @@ export class WriteTool implements Tool {
   private fileContents: string;
 
   constructor(args: string) {
-    const parsedArguments = ReadToolArguments.parse(JSON.parse(args))
-    this.filePath = parsedArguments.file_path;
-    this.fileContents = parsedArguments.content;
+    const {file_path, content} = WriteToolArguments.parse(JSON.parse(args));
+    this.filePath = file_path;
+    this.fileContents = content;
   }
 
   execute(): string {
